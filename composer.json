@@ -1,0 +1,45 @@
+{
+    "name": "hizpark/scoped-storage-strategy",
+    "description": "A flexible and pluggable storage strategy for managing scoped, temporary key-value data using sessions, tokens, Redis, and more.",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "library",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Harper Jang",
+            "email": "harper.jang@outlook.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Hizpark\\ScopedStorageStrategy\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hizpark\\ScopedStorageStrategy\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.58",
+        "phpstan/phpstan": "^1.11",
+        "phpunit/phpunit": "^11.5"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "phpstan analyse src tests",
+        "cs:chk": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "php-cs-fixer fix --dry-run --format=txt --verbose --diff --config=.php-cs-fixer.dist.php --ansi"
+        ],
+        "cs:fix": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "php-cs-fixer fix --config=.php-cs-fixer.dist.php --ansi --verbose"
+        ]
+    }
+}
