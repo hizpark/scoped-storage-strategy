@@ -3,8 +3,6 @@
     "description": "A flexible and pluggable storage strategy for managing scoped, temporary key-value data using sessions, tokens, Redis, and more.",
     "license": "MIT",
     "type": "library",
-    "prefer-stable": true,
-    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Harper Jang",
