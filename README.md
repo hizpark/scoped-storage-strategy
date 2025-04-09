@@ -5,7 +5,7 @@
 A pluggable and namespace-aware storage abstraction for temporarily persisting key-value data during scoped user interactions.
 This strategy supports session-based (cookie and token) and Redis-based implementations, and is designed to decouple application logic from underlying storage mechanisms.
 
-Ideal for tracking transient states — such as validation progress, multi-step workflows, or temporary metadata — using a consistent and replaceable strategy.
+Ideal for tracking transient states — such as validation progress, multistep workflows, or temporary metadata — using a consistent and replaceable strategy.
 
 ## Features
 
@@ -30,10 +30,10 @@ use ScopedStorageStrategy\SessionStorageStrategy;
 use ScopedStorageStrategy\SessionInitializerWithCookie;
 
 $initializer = new SessionInitializerWithCookie();
-$strategy = new SessionStorageStrategy('upload', $initializer);
+$strategy = new SessionStorageStrategy('scope-123', $initializer);
 
-$strategy->put('scope-id-123', '/path/to/file', 'uploaded');
-$value = $strategy->get('scope-id-123', '/path/to/file');
+$strategy->put('demo-file-123', '/path/to/demo-file-123');
+$value = $strategy->get('demo-file-123');
 ```
 
 ### 2. SessionStorageStrategy with Token (for stateless APIs)
@@ -44,9 +44,10 @@ use ScopedStorageStrategy\SessionInitializerWithToken;
 
 $token = $_GET['token'] ?? ''; // or from Authorization header
 $initializer = new SessionInitializerWithToken($token);
-$strategy = new SessionStorageStrategy('upload', $initializer);
+$strategy = new SessionStorageStrategy('scope-456', $initializer);
 
-$strategy->put('scope-id-456', '/path/to/file', 'uploaded');
+$strategy->put('demo-file-456', '/path/to/demo-file-456');
+$value = $strategy->get('demo-file-456');
 ```
 
 ### 3. RedisStorageStrategy
@@ -57,9 +58,10 @@ use ScopedStorageStrategy\RedisStorageStrategy;
 $redis = new \Redis();
 $redis->connect('127.0.0.1', 6379);
 
-$strategy = new RedisStorageStrategy($redis, 'upload');
+$strategy = new RedisStorageStrategy('scope-789', $redis);
 
-$strategy->put('scope-id-789', '/file.jpg', 'uploaded');
+$strategy->put('demo-file-789', '/path/to/demo-file-789');
+$value = $strategy->get('demo-file-789');
 ```
 
 ## Contract
@@ -71,13 +73,13 @@ namespace ScopedStorageStrategy\Contracts;
 
 interface ScopedStorageStrategyContract
 {
-    public function put(string $scopeId, string $key, string $value): void;
-    public function get(string $scopeId, string $key): ?string;
-    public function exists(string $scopeId, string $key): bool;
-    public function remove(string $scopeId, string $key): void;
-    public function all(string $scopeId): ?array;
-    public function empty(string $scopeId): bool;
-    public function clear(string $scopeId): void;
+    public function put(string $key, string $value): void;
+    public function get(string $key): ?string;
+    public function exists(string $key): bool;
+    public function remove(string $key): void;
+    public function all(): ?array;
+    public function empty(): bool;
+    public function clear(): void;
 }
 ```
 

@@ -7,69 +7,65 @@ use Redis;
 
 class RedisStorageStrategy implements ScopedStorageStrategyContract
 {
-    public function __construct(private readonly Redis $redis)
+    private string $scope;
+    private Redis $redis;
+
+    public function __construct(string $scope, Redis $redis)
     {
+        $this->scope = $scope;
+        $this->redis = $redis;
     }
 
-    private function getHashKey(string $scopeId): string
+    private function getHashKey(): string
     {
-        return sprintf('%s:hash', $scopeId);  // 每個 scopeId 對應一個 hash 鍵
+        return sprintf('%s:hash', $this->scope);
     }
 
     private function getFieldKey(string $key): string
     {
-        return md5($key);  // 每個 key 使用 md5 來作為哈希表的字段
+        return md5($key);
     }
 
-    public function put(string $scopeId, string $key, string $value): void
+    public function put(string $key, string $value): void
     {
-        // 使用哈希結構來存儲每個 scopeId 下的 key-value
-        $this->redis->hSet($this->getHashKey($scopeId), $this->getFieldKey($key), $value);
+        $this->redis->hSet($this->getHashKey(), $this->getFieldKey($key), $value);
     }
 
-    public function get(string $scopeId, string $key): ?string
+    public function get(string $key): ?string
     {
-        // 從指定的 scopeId 哈希中獲取對應的 key 的值
-        return $this->redis->hGet($this->getHashKey($scopeId), $this->getFieldKey($key)) ?: null;
+        return $this->redis->hGet($this->getHashKey(), $this->getFieldKey($key)) ?: null;
     }
 
-    public function exists(string $scopeId, string $key): bool
+    public function exists(string $key): bool
     {
-        // 檢查 scopeId 下的指定 key 是否存在
-        return $this->redis->hExists($this->getHashKey($scopeId), $this->getFieldKey($key));
+        return $this->redis->hExists($this->getHashKey(), $this->getFieldKey($key));
     }
 
-    public function remove(string $scopeId, string $key): void
+    public function remove(string $key): void
     {
-        // 刪除 scopeId 下指定 key 的字段
-        $this->redis->hDel($this->getHashKey($scopeId), $this->getFieldKey($key));
+        $this->redis->hDel($this->getHashKey(), $this->getFieldKey($key));
     }
 
-    public function all(string $scopeId): array
+    public function all(): array
     {
-        // 獲取 scopeId 下所有的 key-value 資料
-        $items = $this->redis->hGetAll($this->getHashKey($scopeId));
+        $items = $this->redis->hGetAll($this->getHashKey());
 
-        // 確保 $items 不為空，再進行處理
         if (!$items) {
             return [];
         }
 
-        // 將哈希表的字段名稱還原為原始的 key
         return array_map(function ($key) use ($items) {
             return ['key' => $key, 'value' => $items[$key]];
         }, array_keys($items));
     }
 
-    public function empty(string $scopeId): bool
+    public function empty(): bool
     {
-        // 檢查 scopeId 下的哈希表是否為空
-        return $this->redis->hLen($this->getHashKey($scopeId)) === 0;
+        return $this->redis->hLen($this->getHashKey()) === 0;
     }
 
-    public function clear(string $scopeId): void
+    public function clear(): void
     {
-        // 刪除 scopeId 下的整個哈希表
-        $this->redis->del($this->getHashKey($scopeId));
+        $this->redis->del($this->getHashKey());
     }
 }
