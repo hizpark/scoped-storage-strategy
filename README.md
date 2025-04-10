@@ -106,3 +106,9 @@ src/
 ├── SessionInitializerWithToken.php
 └── SessionStorageStrategy.php
 ```
+
+---
+
+## 📜 License
+
+MIT License. See the [LICENSE](LICENSE) file for details.
