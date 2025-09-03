@@ -19,8 +19,6 @@ jobs:
         image: redis:7
         ports:
           - 6379:6379
-        options: >-
-          --save 900 1 --loglevel warning
     strategy:
       matrix:
         php: ['8.2', '8.3', '8.4']
