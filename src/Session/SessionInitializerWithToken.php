@@ -1,10 +1,12 @@
 <?php
 
-namespace Hizpark\ScopedStorageStrategy;
+declare(strict_types=1);
 
-use Hizpark\ScopedStorageStrategy\Contracts\SessionInitializerContract;
+namespace Hizpark\ScopedStorageStrategy\Session;
 
-class SessionInitializerWithToken implements SessionInitializerContract
+use Hizpark\ScopedStorageStrategy\SessionInitializerInterface;
+
+class SessionInitializerWithToken implements SessionInitializerInterface
 {
     private string $token;
 
@@ -13,13 +15,14 @@ class SessionInitializerWithToken implements SessionInitializerContract
         $this->token = $token;
     }
 
-    public function initialize(string $sessionId = null): void
+    public function initialize(?string $sessionId = null): void
     {
         ini_set('session.use_cookies', '0');
         ini_set('session.use_only_cookies', '0');
 
         // 使用 Token 初始化 session_id
         session_id($this->token);
+
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }

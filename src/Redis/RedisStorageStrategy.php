@@ -1,13 +1,16 @@
 <?php
 
-namespace Hizpark\ScopedStorageStrategy;
+declare(strict_types=1);
 
-use Hizpark\ScopedStorageStrategy\Contracts\ScopedStorageStrategyContract;
+namespace Hizpark\ScopedStorageStrategy\Redis;
+
+use Hizpark\ScopedStorageStrategy\ScopedStorageStrategyInterface;
 use Redis;
 
-class RedisStorageStrategy implements ScopedStorageStrategyContract
+class RedisStorageStrategy implements ScopedStorageStrategyInterface
 {
     private string $scope;
+
     private Redis $redis;
 
     public function __construct(string $scope, Redis $redis)
@@ -33,7 +36,10 @@ class RedisStorageStrategy implements ScopedStorageStrategyContract
 
     public function get(string $key): ?string
     {
-        return $this->redis->hGet($this->getHashKey(), $this->getFieldKey($key)) ?: null;
+        /** @var string|false $value */
+        $value = $this->redis->hGet($this->getHashKey(), $this->getFieldKey($key));
+
+        return $value === false ? null : $value;
     }
 
     public function exists(string $key): bool
@@ -46,15 +52,19 @@ class RedisStorageStrategy implements ScopedStorageStrategyContract
         $this->redis->hDel($this->getHashKey(), $this->getFieldKey($key));
     }
 
+    /**
+     * @return array<int, array{key: string, value: string}>
+     */
     public function all(): array
     {
+        /** @var array<string, string> $items */
         $items = $this->redis->hGetAll($this->getHashKey());
 
         if (!$items) {
             return [];
         }
 
-        return array_map(function ($key) use ($items) {
+        return array_map(function (string $key) use ($items) {
             return ['key' => $key, 'value' => $items[$key]];
         }, array_keys($items));
     }

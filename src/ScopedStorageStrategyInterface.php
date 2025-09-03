@@ -1,8 +1,10 @@
 <?php
 
-namespace Hizpark\ScopedStorageStrategy\Contracts;
+declare(strict_types=1);
 
-interface ScopedStorageStrategyContract
+namespace Hizpark\ScopedStorageStrategy;
+
+interface ScopedStorageStrategyInterface
 {
     public function put(string $key, string $value): void;
 
@@ -12,6 +14,9 @@ interface ScopedStorageStrategyContract
 
     public function remove(string $key): void;
 
+    /**
+     * @return array<int, array{key: string, value: string}>
+     */
     public function all(): array;
 
     public function empty(): bool;

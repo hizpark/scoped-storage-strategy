@@ -1,16 +1,19 @@
 <?php
 
-namespace Hizpark\ScopedStorageStrategy;
+declare(strict_types=1);
 
-use Hizpark\ScopedStorageStrategy\Contracts\ScopedStorageStrategyContract;
-use Hizpark\ScopedStorageStrategy\Contracts\SessionInitializerContract;
+namespace Hizpark\ScopedStorageStrategy\Session;
 
-class SessionStorageStrategy implements ScopedStorageStrategyContract
+use Hizpark\ScopedStorageStrategy\ScopedStorageStrategyInterface;
+use Hizpark\ScopedStorageStrategy\SessionInitializerInterface;
+
+class SessionStorageStrategy implements ScopedStorageStrategyInterface
 {
     private string $scope;
-    private SessionInitializerContract $initializer;
 
-    public function __construct(string $scope, SessionInitializerContract $initializer)
+    private SessionInitializerInterface $initializer;
+
+    public function __construct(string $scope, SessionInitializerInterface $initializer)
     {
         $this->scope       = $scope;
         $this->initializer = $initializer;
@@ -29,7 +32,10 @@ class SessionStorageStrategy implements ScopedStorageStrategyContract
 
     public function get(string $key): ?string
     {
-        return $_SESSION[$this->getSessionKey($key)] ?? null;
+        /** @var string|null $value */
+        $value = $_SESSION[$this->getSessionKey($key)] ?? null;
+
+        return $value;
     }
 
     public function exists(string $key): bool
@@ -42,14 +48,21 @@ class SessionStorageStrategy implements ScopedStorageStrategyContract
         unset($_SESSION[$this->getSessionKey($key)]);
     }
 
+    /**
+     * @return array<int, array{key: string, value: string}>
+     */
     public function all(): array
     {
         $prefix = sprintf('%s:', $this->scope);
         $items  = [];
 
         foreach ($_SESSION as $key => $value) {
+            /** @var string $value */
             if (str_starts_with($key, $prefix)) {
-                $items[] = ['key' => $key, 'value' => $value];
+                $items[] = [
+                    'key'   => (string)$key,
+                    'value' => $value,
+                ];
             }
         }
 

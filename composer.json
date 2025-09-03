@@ -1,14 +1,30 @@
 {
     "name": "hizpark/scoped-storage-strategy",
     "description": "A flexible and pluggable storage strategy for managing scoped, temporary key-value data using sessions, tokens, Redis, and more.",
-    "license": "MIT",
+    "keywords": [
+        "storage",
+        "session",
+        "redis",
+        "scoped",
+        "strategy"
+    ],
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Harper Jang",
             "email": "harper.jang@outlook.com"
         }
     ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.75",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^11.5"
+    },
     "autoload": {
         "psr-4": {
             "Hizpark\\ScopedStorageStrategy\\": "src/"
@@ -19,24 +35,11 @@
             "Hizpark\\ScopedStorageStrategy\\Tests\\": "tests/"
         }
     },
-    "require": {
-        "php": ">=8.1"
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.2"
-    },
     "scripts": {
-        "test": "phpunit",
-        "lint": "phpstan analyse src tests",
-        "cs:chk": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
-            "php-cs-fixer fix --dry-run --format=txt --verbose --diff --config=.php-cs-fixer.dist.php --ansi"
-        ],
-        "cs:fix": [
-            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
-            "php-cs-fixer fix --config=.php-cs-fixer.dist.php --ansi --verbose"
-        ]
+        "stan": "phpstan analyse",
+        "cs:fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --allow-risky=yes --format=txt",
+        "cs:chk": "composer run cs:fix -- --diff --verbose --dry-run",
+        "test": "phpunit --testdox --stop-on-failure",
+        "test:coverage": "XDEBUG_MODE=coverage phpunit --testdox --coverage-html .phpunit_coverage"
     }
 }

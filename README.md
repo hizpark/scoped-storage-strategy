@@ -12,7 +12,7 @@ Ideal for tracking transient states — such as validation progress, multistep w
 - 🍪 **Cookie-based PHP session**
 - 🆔 **Token-based PHP session** (stateless API support)
 - 🚀 **Redis storage** for shared, scalable scenarios
-- 🔌 PSR-style contract for easy integration and extension
+- 🔌 PSR-style interface for easy integration and extension
 - ✅ Unified interface with `put`, `get`, `exists`, `remove`, `clear`, etc.
 
 ## Installation
@@ -21,13 +21,27 @@ Ideal for tracking transient states — such as validation progress, multistep w
 composer require hizpark/scoped-storage-strategy
 ```
 
+## Directory Structure
+
+```txt
+src/
+├── ScopedStorageStrategyInterface.php
+├── SessionInitializerInterface.php
+├── Session/
+│   ├── SessionStorageStrategy.php
+│   ├── SessionInitializerWithCookie.php
+│   └── SessionInitializerWithToken.php
+└── Redis/
+    └── RedisStorageStrategy.php
+```
+
 ## Usage
 
 ### 1. SessionStorageStrategy with Cookie
 
 ```php
-use ScopedStorageStrategy\SessionStorageStrategy;
-use ScopedStorageStrategy\SessionInitializerWithCookie;
+use Hizpark\ScopedStorageStrategy\SessionStorageStrategy;
+use Hizpark\ScopedStorageStrategy\SessionInitializerWithCookie;
 
 $initializer = new SessionInitializerWithCookie();
 $strategy = new SessionStorageStrategy('scope-123', $initializer);
@@ -39,8 +53,8 @@ $value = $strategy->get('demo-file-123');
 ### 2. SessionStorageStrategy with Token (for stateless APIs)
 
 ```php
-use ScopedStorageStrategy\SessionStorageStrategy;
-use ScopedStorageStrategy\SessionInitializerWithToken;
+use Hizpark\ScopedStorageStrategy\SessionStorageStrategy;
+use Hizpark\ScopedStorageStrategy\SessionInitializerWithToken;
 
 $token = $_GET['token'] ?? ''; // or from Authorization header
 $initializer = new SessionInitializerWithToken($token);
@@ -53,7 +67,7 @@ $value = $strategy->get('demo-file-456');
 ### 3. RedisStorageStrategy
 
 ```php
-use ScopedStorageStrategy\RedisStorageStrategy;
+use Hizpark\ScopedStorageStrategy\RedisStorageStrategy;
 
 $redis = new \Redis();
 $redis->connect('127.0.0.1', 6379);
@@ -64,14 +78,14 @@ $strategy->put('demo-file-789', '/path/to/demo-file-789');
 $value = $strategy->get('demo-file-789');
 ```
 
-## Contract
+## Interface
 
 All strategies implement the following interface:
 
 ```php
-namespace ScopedStorageStrategy\Contracts;
+namespace Hizpark\ScopedStorageStrategy;
 
-interface ScopedStorageStrategyContract
+interface ScopedStorageStrategyInterface
 {
     public function put(string $key, string $value): void;
     public function get(string $key): ?string;
@@ -86,25 +100,12 @@ interface ScopedStorageStrategyContract
 And session-based strategies require a session initializer:
 
 ```php
-namespace ScopedStorageStrategy\Contracts;
+namespace Hizpark\ScopedStorageStrategy;
 
-interface SessionInitializerContract
+interface SessionInitializerInterface
 {
     public function initialize(): void;
 }
-```
-
-## Directory Structure
-
-```txt
-src/
-├── Contracts/
-│   ├── ScopedStorageStrategyContract.php
-│   └── SessionInitializerContract.php
-├── RedisStorageStrategy.php
-├── SessionInitializerWithCookie.php
-├── SessionInitializerWithToken.php
-└── SessionStorageStrategy.php
 ```
 
 ---
